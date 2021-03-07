@@ -14,6 +14,15 @@ public class DatabaseUtil {
 		try {
 			Connection cn = getConnection();
 			Statement stmt = cn.createStatement();
+
+			try {
+				//Table may already exist in memory (IDE) so try and drop table and
+				//allow rest of code to continue
+				stmt.execute("DROP TABLE PHONEBOOK");
+			}
+			catch(Exception ex) {
+				System.out.println("Failed to drop table, but carry on and recreate table...");
+			}
 			stmt.execute("CREATE TABLE PHONEBOOK (NAME varchar(255), PHONENUMBER varchar(255), ADDRESS varchar(255))");
 			stmt.execute("INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) VALUES('Chris Johnson','(321) 231-7876', '452 Freeman Drive, Algonac, MI')");
 			stmt.execute("INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) VALUES('Dave Williams','(231) 502-1236', '285 Huron St, Port Austin, MI')");
@@ -28,4 +37,5 @@ public class DatabaseUtil {
 		Class.forName("org.hsqldb.jdbcDriver");
 		return DriverManager.getConnection("jdbc:hsqldb:mem", "sa", "");
 	}
+	
 }
