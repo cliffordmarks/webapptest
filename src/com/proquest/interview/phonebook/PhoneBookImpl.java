@@ -1,8 +1,11 @@
 package com.proquest.interview.phonebook;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.proquest.interview.phonebook.config.PhoneBookConfig;
 import com.proquest.interview.phonebook.service.PhoneBookService;
@@ -68,7 +71,7 @@ public class PhoneBookImpl implements PhoneBook {
 	 */
 	public Person createPerson(String name, String phoneNumber, String address) {
 		//create a person using delegate helper...
-		return phoneBookService.createPerson("John Smith", "(248) 123-4567", "1234 Sand Hill Dr, Royal Oak, MI");
+		return phoneBookService.createPerson(name, phoneNumber, address);
 	}
 
 	
@@ -131,7 +134,6 @@ public class PhoneBookImpl implements PhoneBook {
 	public static void main(String[] args) {
 		DatabaseUtil.initDB();  //You should not remove this line, it creates the in-memory database
 
-		PhoneBookConfig phoneBookConfig = new PhoneBookConfig();
 		
 		/* TODO: create person objects and put them in the PhoneBook and database
 		 * John Smith, (248) 123-4567, 1234 Sand Hill Dr, Royal Oak, MI
@@ -140,12 +142,15 @@ public class PhoneBookImpl implements PhoneBook {
 		// TODO: print the phone book out to System.out
 		// TODO: find Cynthia Smith and print out just her entry
 		// TODO: insert the new person objects into the database
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(PhoneBookConfig.class);
 		
 		try {
-			PhoneBookImpl phoneBookImpl = 
-					new PhoneBookImpl(phoneBookConfig.getPhoneBookView(), 
-							phoneBookConfig.getPhoneBookService(phoneBookConfig.getPhoneBookDAO(DatabaseUtil.getConnection())));
 			
+			PhoneBook phoneBookImpl = (PhoneBook)context.getBean("getPhoneBook") ;
+
+			//Print out the current phonebook entries...
+			phoneBookImpl.printPersons();
+
 			//create a person using delegate helper...
 			Person person = null;
 			person = phoneBookImpl.createPerson("John Smith", "(248) 123-4567", "1234 Sand Hill Dr, Royal Oak, MI");
@@ -170,6 +175,9 @@ public class PhoneBookImpl implements PhoneBook {
 		catch(Exception ex) {
 			//
 			ex.printStackTrace();
+		}
+		finally {
+			context.close();
 		}
 	}
 }
